@@ -20,6 +20,11 @@
       notify:
         - Reboot server
 
+    - name: Touch file called running_jenkins under /tmp
+      file:
+        path: /tmp/running_jenkins
+        state: touch
+
   handlers:
     - name : Reboot server
       reboot:
