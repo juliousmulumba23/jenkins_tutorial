@@ -1,0 +1,29 @@
+---
+- hosts: "{{ inventory }}"
+  remote_user: root
+  become_method: sudo
+  become: yes
+
+  tasks:
+    - name: check for update
+      yum:
+        name: "*"
+        state: latest
+        skip_broken: yes
+
+    - name: Check if a reboot is required
+      command: needs-restarting -r          # either have a 1 or 0
+      register: reg_reboot_required
+      ignore_errors: yes
+      failed_when: false    #task fails when the condition below resorts to false
+      changed_when: reg_reboot_required.rc != 0     # 1 != 0
+      notify:
+        - Reboot server
+
+  handlers:
+    - name : Reboot server
+      reboot:
+        msg: "Reboot initiated by Ansible after OS update"
+        reboot_timeout: 3600
+        test_command: uptime
+
